@@ -21,6 +21,7 @@ import plotly.offline as py
 import plotly.tools as tls
 import plotly
 import time
+import statsmodels.formula.api as smf
 
 #==========================================================
 #==== Base et Traitement ==================================
@@ -49,70 +50,25 @@ shapefile_path = "C:/Users/BRAND MASTER TECH/Desktop/Concours Data_Viz/streamlit
 
 data, geo_Africa_df = load_data(excel_path, shapefile_path)
 
-
-
-
+st.sidebar.image("Logo.png") # Remplacez par le chemin de votre logo
+st.sidebar.title("Membre de l'Equipe")
+df_model = pd.read_excel( "baseFINALE_panel.xlsx")
 #==========================================================
 #==== FONCTION DE VISUALISATION ===========================
 #==========================================================
 
-def barplot(df,var_select, x_no_numeric) :
-    tmp1 = df[(df['Attrition'] != "No")]
-    tmp2 = df[(df['Attrition'] == "No")]
-    tmp3 = pd.DataFrame(pd.crosstab(df[var_select],df['Attrition']), )
-    tmp3['Attr%'] = tmp3["Yes"] / (tmp3["Yes"] + tmp3["No"]) * 100
-    if x_no_numeric == True  : 
-        tmp3 = tmp3.sort_values("Yes", ascending = False)
-
-    color=['lightskyblue','#EE6C6C' ]
-    trace1 = go.Bar(
-        x=tmp1[var_select].value_counts().keys().tolist(),
-        y=tmp1[var_select].value_counts().values.tolist(),
-        name='Yes_Attrition',opacity = 0.8, marker=dict(
-        color='#EE6C6C',
-        line=dict(color='#000000',width=1)))
-
-    
-    trace2 = go.Bar(
-        x=tmp2[var_select].value_counts().keys().tolist(),
-        y=tmp2[var_select].value_counts().values.tolist(),
-        name='No_Attrition', opacity = 0.8, marker=dict(
-        color='lightskyblue',
-        line=dict(color='#000000',width=1)))
-    
-    trace3 =  go.Scatter(   
-        x=tmp3.index,
-        y=tmp3['Attr%'],
-        yaxis = 'y2',
-        name='% Attrition', opacity = 0.6, marker=dict(
-        color='#881BCB',
-        line=dict(color='#000000',width=0.5
-        )))
-
-    layout = dict(title =  str(var_select),
-              xaxis=dict(), 
-              yaxis=dict(title= 'Count'), 
-              yaxis2=dict(range= [-0, 75], 
-                          overlaying= 'y', 
-                          anchor= 'x', 
-                          side= 'right',
-                          zeroline=False,
-                          showgrid= False, 
-                          title= '% Attrition'
-                         ))
-
-    fig = go.Figure(data=[trace1, trace2, trace3], layout=layout)
-    py.iplot(fig)
-    
 def make_multy_bar(data,value,group):
-    df_dg=data[(data['indicator']==indicateur)]
+    df_dg=data[data['indicator']==indicateur]
     df_dg=df_dg.groupby(by=[group,"Region"])["Valeur"].sum().reset_index()
     fig = px.bar(df_dg, x=group, y=value, color="Region")
     st.plotly_chart(fig) 
 
 def make_line(data,value,group,titre=""):
     #df_dg=data[(data['indicator']==indicateur)]
-    df_dg=data[(data['indicator']==indicateur) & (data["Gender"] == gender)]
+    df_dg=data[(data['indicator']==indicateur)]
+    #a_tes=list(df_dg["Gender"].unique())
+    #if len(a_tes)!=0:
+        #df_dg=data[(data['indicator']==indicateur) & (data["Gender"] == gender)]
     df_dg=df_dg.groupby(by=[group,"time"])["Valeur"].sum().reset_index()
     fig = px.line(df_dg, x="time", y=value, color=group, markers=True,title=titre)
     fig.update_layout(
@@ -125,7 +81,7 @@ def make_line(data,value,group,titre=""):
     st.plotly_chart(fig) 
 
 def make_chloropleth(input_geodf, indicator, value, width=800, height=600):
-   
+
     #df_grph = input_geodf[(input_geodf["indicator"] == indicator)&(input_geodf["Gender"] == gender)&(input_geodf["Critere"] == crit)].copy() #Copie pour éviter les modifications in situ
     df_grph=input_geodf[(input_geodf["indicator"] == indicator) ]
     fig = px.choropleth_mapbox(
@@ -219,7 +175,7 @@ def make_combined_map(input_geodf, pib_column, population_column, width=800, hei
 def make_histogram(input_geodf, indicator, width=800, height=600):
     
     #df = input_geodf[(input_geodf["indicator"] == indicator)&(input_geodf["Gender"] == gender)&(input_geodf["Critere"] == crit)].copy() #Copie pour éviter les modifications in situ
-    df = input_geodf[(input_geodf["indicator"] == indicator)&(input_geodf["Gender"] == gender)].copy() #Copie pour éviter les modifications in situ
+    df = input_geodf[(input_geodf["indicator"] == indicator)].copy() #Copie pour éviter les modifications in situ
     #df = input_geodf[input_geodf['indicator'] == indicator].copy()  # Copie pour éviter les modifications in situ
     df.sort_values("Valeur", inplace=True) #Tri sur place pour plus d'efficacité
 
@@ -272,7 +228,9 @@ def display_single_metric_advanced(label, value, delta, unit="", caption="", col
     )
 
 def make_bar_polar_chart(data, names, values, title="Diagramme Polaire en Barres", width=800, height=600, colors=None):
-   
+    df_dg=data[data['indicator']==indicateur]
+    data=df_dg.groupby(by=["Region"])["Valeur"].sum().reset_index()
+    
     if isinstance(data, pd.DataFrame):
         fig = px.bar_polar(data, r=values, theta=names, title=title, width=width, height=height, color=names)
     else:
@@ -292,9 +250,28 @@ def make_bar_polar_chart(data, names, values, title="Diagramme Polaire en Barres
     )
     st.plotly_chart(fig)
 
+def afficher_profil_sidebar(photo, nom, prenom, email, telephone):
+   
+    st.sidebar.image(photo, width=100) # Ajustez la largeur selon vos besoins
+    st.sidebar.write(f"Nom : {nom}")
+    st.sidebar.write(f"Prénom : {prenom}")
+    st.sidebar.write(f"Email : {email}")
+    st.sidebar.write(f"Téléphone : {telephone}")
+
+afficher_profil_sidebar("Landry.jpg", "KENGNE", "Bienvenu Landry", "landrykengne99@gmail.com", "+237 6 98 28 05 37")
+
+afficher_profil_sidebar("Merveil.jpg", "NOULAYE", "Merveille", "landrykengne99@gmail.com", "+237 6 98 28 05 37")
+
+afficher_profil_sidebar("Landry.jpg", "DONFACK", "Deselie", "landrykengne99@gmail.com", "+237 6 98 28 05 37")
+
+afficher_profil_sidebar("Rinel.jpg", "TAGNE", "Rinel", "landrykengne99@gmail.com", "+237 6 98 28 05 37")
+
+afficher_profil_sidebar("Anaba.jpg", "ANABA", "Rodrigue", "landrykengne99@gmail.com", "+237 6 98 28 05 37")
+
+
 
 st.title("Data visualisation avec streamlit")
-st.subheader(body="Auteur: GROUPE ALPHA")
+st.subheader(body="Concepteur: GROUPE ALPHA")
 st.markdown("***Cette applicaton affiche different type de graphique***")
 
 tables = st.tabs(["Données", "Description des différentes bases", "Tableau de Bord","Modélisation","Interprétations"])
@@ -318,7 +295,7 @@ with tables[1]:
 #==============================================================
 with tables[2]:
     st.text("Visuels Sur les Indicateurs")
-    cl1,cl2,cl3=st.columns(3)
+    cl1,cl2,cl3,cl4=st.columns(4)
     ci_df1 = data[data["indicator"]=="Unemployment rate 2024 (%)"]
     metric_chom=round(ci_df1['Valeur'].mean(),2)
     delta_chom = round(ci_df1['Valeur'].median(),2)
@@ -330,12 +307,20 @@ with tables[2]:
     ci_df3 = data[data["indicator"]=="Underemployment rate (%)"]
     metric_val_under=round(ci_df3['Valeur'].mean(),2)
     delta_under = round(ci_df3['Valeur'].max(),2)
+    
+    ci_df4 = data[(data["indicator"]=="Employment by sex and age (thousands)")&(data["Gender"]=="Sex: Total")]
+    metric_val_emp=round(ci_df4['Valeur'].sum(),2)
+    delta_emp = round(ci_df4['Valeur'].mean(),2)
+    
     with cl1:
         display_single_metric_advanced("PIB TOTAL", metric_val_GDP, delta_GDP, unit="$", caption="Moyenne", color_scheme="green")
     with cl2:
         display_single_metric_advanced("Taux de chômage Moyen", metric_chom, delta_chom, unit="%", caption="Maximun", color_scheme="red")
     with cl3: 
         display_single_metric_advanced("Taux Global de Sous Emplois", metric_val_under, delta_under, unit="%", caption="Maximum")
+    with cl4: 
+        display_single_metric_advanced("Nombre d'Emploi", metric_val_emp, delta_emp, unit="", caption="Moyenne",color_scheme="orange")
+    
     with st.container():
         col1, col2 = st.columns([5, 1])
         
@@ -365,7 +350,7 @@ with tables[2]:
                     if len(indicateur)!=0:    
                         data_ex = {'Category': ['A', 'B', 'C', 'D'], 'Value': [25, 15, 30, 30]}
                         df_ex = pd.DataFrame(data_ex)
-                        make_bar_polar_chart(df_ex, 'Category', 'Value',width=300, height=300,colors=['red','green','blue','orange'])                     
+                        make_bar_polar_chart(geo_Africa_df, 'Region', 'Valeur',width=300, height=300,colors=['red','green','blue','orange'])                     
                         make_histogram(geo_Africa_df,indicateur,width=450,height=450)  
                 with subcol2:
                     make_chloropleth(geo_Africa_df,indicateur,"Valeur",width=600,height=350)               
@@ -377,10 +362,11 @@ with tables[2]:
                 
             with tabs[2]:
                 st.text("Afficher les statistiques ici")
-                
+            
+            g_pays = st.multiselect("Choisisez un ou plusieurs pays",list(data['country'].unique())) 
             s_col1,s_col2=st.columns(2)
             with s_col1:
-                g_pays = st.multiselect("Choisisez un ou plusieurs pays",list(data['country'].unique()))
+                
                 if len(g_pays)!=0:
                     df_pay=data[data['country'].isin(g_pays)]
                     make_line(df_pay,"Valeur",'country',titre= "Evolution of " + indicateur)
@@ -392,9 +378,6 @@ with tables[2]:
                 #st.dataframe(data_grph)
             
             
-            
-                
-
 
 #==============================================================
         # ...votre code pour afficher les statistiques...
@@ -403,6 +386,166 @@ with tables[3]:
         # ...votre code pour afficher les statistiques...
 with tables[4]:
     st.text("Interprétation")
-        # ...votre code pour afficher les statistiques...
+    df_model=df_model[['pays','annee','Unemployment Rate','GDP','Population_Female','Population_Male','Working Poverty Rate_Total','Output per Worker','POP_Female_15-24','POP_Female_25-34','POP_Female_35-44','POP_Female_45-54','POP_Female_55-64','POP_Female_65+','POP_Male_15-24','POP_Male_25-34','POP_Male_35-44','POP_Male_45-54','POP_Male_55-64','POP_Male_65+']]
+    def panel_model(df):
+        import matplotlib.pyplot as plt
+        model_contraint = smf.ols(" df['Unemployment Rate'] ~ np.log(GDP) + np.log(Population_Female) + np.log(Population_Male) + df['Working Poverty Rate_Total'] + np.log(df['Output per Worker']) + np.log(df['POP_Female_15-24']) + np.log(df['POP_Female_25-34']) + np.log(df['POP_Female_35-44']) + np.log(df['POP_Female_45-54']) + np.log(df['POP_Female_55-64']) +  np.log(df['POP_Female_65+']) + np.log(df['POP_Male_15-24']) + np.log(df['POP_Male_25-34']) + np.log(df['POP_Male_35-44']) + np.log(df['POP_Male_45-54']) + np.log(df['POP_Male_55-64']) + np.log(df['POP_Male_65+'])", data=df).fit()
+    # print(model_contraint.summary())
         
+        summary = model_contraint.summary()
+        
+        # Récupérer les variables significatives
+        alpha = 0.05
+        significant_vars = summary.tables[1].data[1:]  # Ignore the first row which is the headers
+        
+        # Stocker les résultats dans un DataFrame
+        results = []
+        for var in significant_vars:
+            variable_name = var[0]
+            coefficient = var[1]
+            p_value = var[4]
+            
+            if float(p_value) < alpha:
+                results.append((variable_name, coefficient, p_value))
+        
+        # Créer un DataFrame pour les variables significatives
+        results_df = pd.DataFrame(results, columns=['Variable', 'Coefficient', 'p-value'])
+        
+        # Afficher le DataFrame des résultats
+        #print("Variables significatives :")
+        #print(results_df)
+        
+        # R carré du modèle
+        r_squared = model_contraint.rsquared
+        #print(f"\nR carré du modèle : {r_squared:.4f}")
+        
+        # Récupérer la p-value globale du modèle
+        p_value_global = model_contraint.f_pvalue
+        #print(f"\nP-value globale du modèle : {p_value_global:.4f}")
+        dic = {'np.log(GDP)': 'GDP',
+        "np.log(Population_Female)":'Population_Female',
+        "np.log(Population_Male)":'Population_Male',
+        "np.log(df['Output per Worker'])":'Output per Worker',
+        "np.log(df['POP_Female_15-24'])":'POP_Female_15-24',
+        "np.log(df['POP_Female_25-34'])":'POP_Female_25-34',
+        "np.log(df['POP_Female_35-44'])":'POP_Female_35-44',
+        "np.log(df['POP_Female_45-54'])":'POP_Female_45-54',
+        "np.log(df['POP_Female_55-64'])":'POP_Female_55-64',
+        "np.log(df['POP_Female_65+'])":'POP_Female_65+',
+        "np.log(df['POP_Male_15-24'])":'POP_Male_15-24',
+        "np.log(df['POP_Male_25-34'])":'POP_Male_25-34',
+        "np.log(df['POP_Male_35-44'])":'POP_Male_35-44',
+        "np.log(df['POP_Male_45-54'])":'POP_Male_45-54',
+        "np.log(df['POP_Male_55-64'])":'POP_Male_55-64',
+        "np.log(df['POP_Male_65+'])":'POP_Male_65+'
+        }
+        X = []
+        
+        for i in results_df["Variable"].tolist()[1:]:
+            if i == "df['Working Poverty Rate_Total']":
+                pass
+            else: X.append(dic[i])
+        X
+        return results_df,r_squared,p_value_global,X
+
+    
+        # ...votre code pour afficher les statistiques...
+    
+    def plot_scatter(df, x, year):
+        df_filtered = df[df['annee'] == year]
+        fig = px.scatter(
+            df_filtered,
+            x=x,
+            y='Unemployment Rate',
+            color='pays',
+            size_max=10
+        )
+        st.plotly_chart(fig)
+     
+    results_df,r_squared,p_value_global,X=panel_model(df_model)  
+    
+    st.dataframe(results_df)
+    st.write('R_carré:' + str(r_squared) )
+    st.write('P_value:' + str(p_value_global) )
+    cm1, cm2=st.columns(2)
+    with cm1:
+        plot_scatter(df_model, X[0], 2021)
+        plot_scatter(df_model, X[1], 2021)
+        plot_scatter(df_model, X[2], 2021)
+        plot_scatter(df_model, X[3], 2021)
+    with cm2:
+        plot_scatter(df_model, X[4], 2021)
+        plot_scatter(df_model, X[5], 2021)
+        plot_scatter(df_model, X[6], 2021)
+        plot_scatter(df_model, X[7], 2021)
 st.markdown("---")
+colon1, colon2=st.columns(2)
+
+def creer_graphique_area(df, titre, x_col, y_cols, couleurs=None):
+    
+
+    fig = go.Figure()
+
+    if couleurs is None:
+        couleurs = ['#636EFA', '#EF553B', '#00CC96', '#AB63FA', '#FFA15A'] # Couleurs par défaut
+
+    for i, col in enumerate(y_cols):
+        fig.add_trace(go.Scatter(
+            x=df[x_col],
+            y=df[col],
+            hoverinfo='x+y',  # Afficher x et y au survol
+            mode='lines',
+            fill='tonexty' if i == 0 else 'tozeroy', # Remplissage de l'aire
+            line=dict(width=2, color=couleurs[i % len(couleurs)]), # Largeur et couleur des lignes
+            name=col,
+            stackgroup='one' # Empilement des aires
+        ))
+
+    fig.update_layout(
+        title=titre,
+        xaxis_title=x_col,
+        yaxis_title="Valeur",
+        plot_bgcolor='#f2f2f2',  # Couleur d'arrière-plan du graphique
+        paper_bgcolor='#f2f2f2',  # Couleur d'arrière-plan de la page
+        font=dict(family="Arial", size=12, color="#333"), # Police
+        hovermode='x unified', # Survol unifié sur l'axe x
+        legend=dict(
+            orientation="h", # Légende horizontale
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1
+        )
+    )
+
+    fig.update_layout(
+        title_font=dict(size=16, color="white", family="Arial"),
+        legend=dict(font=dict(size=12)),
+        plot_bgcolor='rgba(0,0,0,0)',  # Arrière-plan transparent
+        paper_bgcolor='rgba(0,0,0,0)',  # Arrière-plan transparent
+        margin=dict(l=50, r=50, b=50, t=80, pad=4)
+    )
+    
+    st.plotly_chart(fig)
+
+with colon1:
+    Pays=st.selectbox("Choisisez un pays", data['country'].unique())
+    data_country=data[data['country']==Pays]
+    
+    data = {'Date': pd.to_datetime(['2024-01-01', '2024-01-08', '2024-01-15', '2024-01-22', '2024-01-29']),
+        'Série A': [10, 15, 12, 18, 22],
+        'Série B': [5, 8, 10, 12, 15],
+            'Série C': [2, 4, 6, 8, 10]}
+    df_n = pd.DataFrame(data)
+    df_ct_PIB=data_country[data_country["indicator"]=="GDP (millions 2017 PPP$)"]
+    df_ct_unemp=data_country[data_country["indicator"]=="Underemployment rate (%)"]
+    df_ct_emp=data_country[data_country["indicator"]=="Employment by sex and age (thousands)"]
+    df_ct_lab=data_country[data_country["indicator"]=="Labour income share (%)"]
+    
+    creer_graphique_area(df_ct_PIB, "Evolution du PIB", "time", ["Valeur"])
+
+with colon2:
+    
+    fig = px.line(df_ct_emp, x="time", y="Valeur", markers=True,title="Evolution de l'emploi")
+    st.plotly_chart(fig)
+    
