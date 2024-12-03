@@ -1,9 +1,8 @@
-pip install plotly pandas numpy plotly os warnings datetime streamlit 
-
 import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px 
+import matplotlib.pyplot as plt
 import os
 import warnings
 import datetime
