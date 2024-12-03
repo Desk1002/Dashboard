@@ -272,7 +272,7 @@ afficher_profil_sidebar("Landry.jpg", "KENGNE", "Bienvenu Landry", "landrykengne
 
 afficher_profil_sidebar("Merveil.jpg", "NOULAYE", "Merveille", "landrykengne99@gmail.com", "+237 6 98 28 05 37")
 
-afficher_profil_sidebar("Landry.jpg", "DONFACK", "Deselie", "landrykengne99@gmail.com", "+237 6 98 28 05 37")
+afficher_profil_sidebar("Deselie.jpg", "DONFACK", "Deselie", "landrykengne99@gmail.com", "+237 6 98 28 05 37")
 
 afficher_profil_sidebar("Rinel.jpg", "TAGNE", "Rinel", "landrykengne99@gmail.com", "+237 6 98 28 05 37")
 
@@ -411,9 +411,9 @@ with tables[2]:
                     df_pay=data[data['country'].isin(g_pays)]
                     make_line(df_pay,"Valeur",'country',titre= "Evolution of " + indicateur)
             with s_col2:
-                #if len(g_pays)!=0:
-                df_pay=data[(data['country'].isin(g_pays))&(data['Critere']==crit)]
-                make_multy_bar(df_pay,"Valeur",'country')
+                if len(g_pays)!=0:
+                    df_pay=data[data['country'].isin(g_pays)]
+                    make_multy_bar(df_pay,"Valeur",'country')
 
                 #st.dataframe(data_grph)
             
