@@ -1,4 +1,4 @@
-!pip install plotly pandas numpy plotly os warnings datetime streamlit 
+pip install plotly pandas numpy plotly os warnings datetime streamlit 
 
 import streamlit as st
 import pandas as pd
