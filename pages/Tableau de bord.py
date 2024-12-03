@@ -270,13 +270,13 @@ def afficher_profil_sidebar(photo, nom, prenom, email, telephone):
 
 afficher_profil_sidebar("Landry.jpg", "KENGNE", "Bienvenu Landry", "landrykengne99@gmail.com", "+237 6 98 28 05 37")
 
-afficher_profil_sidebar("Merveil.jpg", "NOULAYE", "Merveille", "landrykengne99@gmail.com", "+237 6 98 28 05 37")
+afficher_profil_sidebar("Merveil.jpg", "NOULAYE", "Merveille", "noulayemerveille@gmail.com", "+237 6 77 39 32 86")
 
-afficher_profil_sidebar("Deselie.jpg", "DONFACK", "Deselie", "landrykengne99@gmail.com", "+237 6 98 28 05 37")
+afficher_profil_sidebar("Deselie.jpg", "DONFACK", "Deselie", "deseliengoufack@gmail.com", "+237 6 98 16 03 61")
 
-afficher_profil_sidebar("Rinel.jpg", "TAGNE", "Rinel", "landrykengne99@gmail.com", "+237 6 98 28 05 37")
+afficher_profil_sidebar("Rinel.jpg", "TAGNE", "Rinel", "cezangue@gmail.com", "+237 6 73 83 11 57")
 
-afficher_profil_sidebar("Anaba.jpg", "ANABA", "Rodrigue", "landrykengne99@gmail.com", "+237 6 98 28 05 37")
+afficher_profil_sidebar("Anaba.jpg", "ANABA", "Rodrigue", "student.rodrigue.anaba@issea-cemac.org", "+237 6 96 26 90 77")
 
 def chloro_cart(df,indicator,value):
     fig = px.choropleth(
