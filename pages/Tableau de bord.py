@@ -411,9 +411,9 @@ with tables[2]:
                     df_pay=data[data['country'].isin(g_pays)]
                     make_line(df_pay,"Valeur",'country',titre= "Evolution of " + indicateur)
             with s_col2:
-                if len(g_pays)!=0:
-                    df_pay=data[(data['country'].isin(g_pays))&(data['Critere']==crit)]
-                    make_multy_bar(df_pay,"Valeur",'country')
+                #if len(g_pays)!=0:
+                df_pay=data[(data['country'].isin(g_pays))&(data['Critere']==crit)]
+                make_multy_bar(df_pay,"Valeur",'country')
 
                 #st.dataframe(data_grph)
             
