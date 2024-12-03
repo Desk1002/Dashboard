@@ -27,32 +27,42 @@ import statsmodels.formula.api as smf
 #==== Base et Traitement ==================================
 #==========================================================
 
+#
+
+#def load_data(excel_path, shapefile_path):
+    #Charge les données Excel et Shapefile, avec gestion des erreurs.
+#    st.write("Chargement des données...")
+#    start_time = time.time()
+#    try:
+#        data = pd.read_excel(excel_path)
+#        geo_Africa_df = gpd.read_file(shapefile_path)
+#        end_time = time.time()
+ #       st.success(f"Données chargées en {end_time - start_time:.2f} secondes.")
+ #       return data, geo_Africa_df
+ #   except FileNotFoundError as e:
+#        st.error(f"Erreur : Fichier introuvable - {e}")
+#        return None, None
+#    except Exception as e:
+#        st.exception(f"Une erreur s'est produite : {e}")
+#        return None, None
+
+ 
+#excel_path = "Indicateur.xlsx"
+#shapefile_path = "GeoData2023.shp"
+
+#data, geo_Africa_df = load_data(excel_path, shapefile_path)
 @st.cache_data(persist="disk") # Persist pour garder le cache entre les sessions
-def load_data(excel_path, shapefile_path):
-    """Charge les données Excel et Shapefile, avec gestion des erreurs."""
-    st.write("Chargement des données...")
-    start_time = time.time()
-    try:
-        data = pd.read_excel(excel_path)
-        geo_Africa_df = gpd.read_file(shapefile_path)
-        end_time = time.time()
-        st.success(f"Données chargées en {end_time - start_time:.2f} secondes.")
-        return data, geo_Africa_df
-    except FileNotFoundError as e:
-        st.error(f"Erreur : Fichier introuvable - {e}")
-        return None, None
-    except Exception as e:
-        st.exception(f"Une erreur s'est produite : {e}")
-        return None, None
-
+def load_data(excel_path):
+    data=pd.read_excel(excel_path)
+    return data
 excel_path = "Indicateur.xlsx"
-shapefile_path = "C:/Users/BRAND MASTER TECH/Desktop/Concours Data_Viz/streamlit_apk/GeoData2023.shp"
+#shapefile_path = "GeoData2023.shp"
 
-data, geo_Africa_df = load_data(excel_path, shapefile_path)
-
+data = load_data(excel_path)
 st.sidebar.image("Logo.png") # Remplacez par le chemin de votre logo
 st.sidebar.title("Membre de l'Equipe")
 df_model = pd.read_excel( "baseFINALE_panel.xlsx")
+data_to_grph=data[data["time"]==2023]
 #==========================================================
 #==== FONCTION DE VISUALISATION ===========================
 #==========================================================
@@ -268,6 +278,35 @@ afficher_profil_sidebar("Rinel.jpg", "TAGNE", "Rinel", "landrykengne99@gmail.com
 
 afficher_profil_sidebar("Anaba.jpg", "ANABA", "Rodrigue", "landrykengne99@gmail.com", "+237 6 98 28 05 37")
 
+def chloro_cart(df,indicator,value):
+    fig = px.choropleth(
+        df[df['indicator']==indicator].sort_values(by='time'),
+        locations='ISO_A3',
+        color=value,
+        hover_name='country',
+        color_continuous_scale=px.colors.sequential.Plasma,
+        title='Test choro',
+        labels={value: "Value"},
+        
+    )
+    fig.update_geos(
+        projection_type="mercator",
+        showframe=False,
+        showcoastlines=False,
+        fitbounds="locations",  # Automatically fits the map to the data
+        lataxis=dict(range=[-35, 40]),  # Latitude range for Africa
+        lonaxis=dict(range=[-20, 55]),  # Longitude range for Africa
+    )
+    # Update layout to remove margins
+    fig.update_layout(
+        title=dict(x=0.5),  # Center the title
+        margin=dict(l=0, r=0, t=30, b=0),  # Remove margins
+        coloraxis_colorbar=dict(title="Value"),
+        plot_bgcolor='rgba(0, 0, 0, 0)',
+        paper_bgcolor='rgba(0, 0, 0, 0)',
+        
+    )
+    st.plotly_chart(fig)
 
 
 st.title("Data visualisation avec streamlit")
@@ -277,14 +316,14 @@ st.markdown("***Cette applicaton affiche different type de graphique***")
 tables = st.tabs(["Données", "Description des différentes bases", "Tableau de Bord","Modélisation","Interprétations"])
 with tables[0]:
     st.text("Mettre Les différentes Base de Donnée ici")
-    if data is not None and geo_Africa_df is not None:
+    #if data is not None and geo_Africa_df is not None:
         # Traitement et affichage des données
-        st.write("Données Excel :")
-        st.dataframe(data)
-        st.write("Données Shapefile :")
-        st.map(geo_Africa_df) # ou autre affichage de geo_Africa_df
-    else:
-        st.warning("Le chargement des données a échoué. Veuillez vérifier les chemins de fichiers.")
+        #st.write("Données Excel :")
+        #st.dataframe(data)
+        #st.write("Données Shapefile :")
+        #st.map(geo_Africa_df) # ou autre affichage de geo_Africa_df
+    #else:
+        #st.warning("Le chargement des données a échoué. Veuillez vérifier les chemins de fichiers.")
 with tables[1]:
     st.text("Décrire les différentes Bases ")
         # ...votre code pour afficher les données...
@@ -350,10 +389,11 @@ with tables[2]:
                     if len(indicateur)!=0:    
                         data_ex = {'Category': ['A', 'B', 'C', 'D'], 'Value': [25, 15, 30, 30]}
                         df_ex = pd.DataFrame(data_ex)
-                        make_bar_polar_chart(geo_Africa_df, 'Region', 'Valeur',width=300, height=300,colors=['red','green','blue','orange'])                     
-                        make_histogram(geo_Africa_df,indicateur,width=450,height=450)  
+                        make_bar_polar_chart(data_to_grph, 'Region', 'Valeur',width=300, height=300,colors=['red','green','blue','orange'])                     
+                        make_histogram(data_to_grph,indicateur,width=450,height=450)  
                 with subcol2:
-                    make_chloropleth(geo_Africa_df,indicateur,"Valeur",width=600,height=350)               
+                    #make_chloropleth(geo_Africa_df,indicateur,"Valeur",width=600,height=350)
+                    chloro_cart(data_to_grph,indicateur,"Valeur")                
                     make_line(data,"Valeur","Region",titre="Evolution of " + indicateur)
             with tabs[1]:
                 st.text("Par sous Région")
