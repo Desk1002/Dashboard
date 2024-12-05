@@ -394,11 +394,11 @@ with tables[2]:
                 with subcol2:
                     #make_chloropleth(geo_Africa_df,indicateur,"Valeur",width=600,height=350)
                     chloro_cart(data_to_grph,indicateur,"Valeur")   
-                    if len(gender)>4:
+                    if gender!="nan" and gender!="":
                         dfplot=data[data['Gender']==gender]
+                        make_line(dfplot,"Valeur","Region",titre="Evolution of " + indicateur)
                     else:
-                        dfplot=data
-                    make_line(dfplot,"Valeur","Region",titre="Evolution of " + indicateur)
+                        make_line(data,"Valeur","Region",titre="Evolution of " + indicateur)
             with tabs[1]:
                 st.text("Par sous Région")
                 #make_chloropleth_by(geo_Africa_df,'POP_EST',"Region",width=700,height=350)
