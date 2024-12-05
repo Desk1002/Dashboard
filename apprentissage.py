@@ -5,8 +5,8 @@ import numpy as np
 import joblib
 
 st.title("Data visualisation avec streamlit")
-st.subheader(body="Auteur: KENGNE")
-st.markdown("***Cette applicaton affiche different type de graphique***")
+st.subheader(body="Auteur: TEAM ALPHA")
+st.markdown("***Cette applicaton affiche different type de graphique sur le thème Emploi et Insertion Professionnelle en Afrique***")
 
 
 #data=pd.read_excel("./personna.xlsx",sheet_name="Sheet1")
