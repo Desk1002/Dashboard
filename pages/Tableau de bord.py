@@ -394,7 +394,7 @@ with tables[2]:
                 with subcol2:
                     #make_chloropleth(geo_Africa_df,indicateur,"Valeur",width=600,height=350)
                     chloro_cart(data_to_grph,indicateur,"Valeur")   
-                    if gender!="nan":
+                    if len(gender)>4:
                         dfplot=data[data['Gender']==gender]
                     else:
                         dfplot=data
