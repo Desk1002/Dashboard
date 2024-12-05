@@ -590,6 +590,7 @@ with colon1:
 
 with colon2:
     
-    fig = px.line(df_ct_emp, x="time", y="Valeur", markers=True,title="Evolution de l'emploi")
+    df_dghj=df_ct_emp.groupby(by=["time"])["Valeur"].sum().reset_index()
+    fig = px.line(df_dghj, x="time", y="Valeur", markers=True,title="Evolution de l'emploi")
     st.plotly_chart(fig)
     
