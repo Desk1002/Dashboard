@@ -285,7 +285,7 @@ def chloro_cart(df,indicator,value):
         color=value,
         hover_name='country',
         color_continuous_scale=px.colors.sequential.Plasma,
-        title='Test choro',
+        title=indicator,
         labels={value: "Value"},
         
     )
@@ -393,8 +393,12 @@ with tables[2]:
                         make_histogram(data_to_grph,indicateur,width=450,height=450)  
                 with subcol2:
                     #make_chloropleth(geo_Africa_df,indicateur,"Valeur",width=600,height=350)
-                    chloro_cart(data_to_grph,indicateur,"Valeur")                
-                    make_line(data,"Valeur","Region",titre="Evolution of " + indicateur)
+                    chloro_cart(data_to_grph,indicateur,"Valeur")   
+                    if gender!="nan" and gender!="":
+                        dfplot=data[data['Gender']==gender]
+                    else:
+                        dfplot=data
+                    make_line(dfplot,"Valeur","Region",titre="Evolution of " + indicateur)
             with tabs[1]:
                 st.text("Par sous Région")
                 #make_chloropleth_by(geo_Africa_df,'POP_EST',"Region",width=700,height=350)
