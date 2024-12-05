@@ -309,7 +309,7 @@ def chloro_cart(df,indicator,value):
     st.plotly_chart(fig)
 
 
-st.title("EMPLOI ET INSERTION PROFESSIONNELE EN AFRIQUE")
+st.title("EMPLOI ET INSERTION PROFESSIONNELLE EN AFRIQUE")
 st.subheader(body="Concepteur: GROUPE ALPHA")
 st.markdown("***Cette applicaton affiche different type de graphique***")
 
